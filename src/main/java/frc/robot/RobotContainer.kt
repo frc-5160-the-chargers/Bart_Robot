@@ -3,9 +3,20 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot
 
+import com.batterystaple.kmeasure.units.inches
+import com.batterystaple.kmeasure.units.seconds
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
+import frc.chargers.commands.buildCommand
+import frc.chargers.commands.setDefaultRunCommand
+import frc.chargers.hardware.motorcontrol.EncoderMotorControllerGroup
+import frc.chargers.hardware.motorcontrol.rev.ChargerSpark
+import frc.chargers.hardware.motorcontrol.rev.neoSparkMax
+import frc.chargers.hardware.sensors.encoders.Encoder
+import frc.chargers.hardware.subsystems.drivetrain.BasicDifferentialDrivetrain
+import frc.chargers.hardware.subsystems.drivetrain.sparkDrivetrain
 import frc.robot.Constants.OperatorConstants
 import frc.robot.commands.Autos
 import frc.robot.commands.ExampleCommand
@@ -18,11 +29,19 @@ import frc.robot.subsystems.ExampleSubsystem
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 class RobotContainer {
-    // The robot's subsystems and commands are defined here...
-    private val m_exampleSubsystem = ExampleSubsystem()
 
-    // Replace with CommandPS4Controller or CommandJoystick if needed
-    private val m_driverController = CommandXboxController(OperatorConstants.kDriverControllerPort)
+
+    private val m_driverController = CommandXboxController(0)
+
+    val left1  = ChargerSpark(channel = 0) // @Someone change this here
+    val left2  = ChargerSpark(channel = 0) // and this
+    val right1 = ChargerSpark(channel = 0)  // and this
+    val right2 = ChargerSpark(channel = 0)
+    private val drivetrain: BasicDifferentialDrivetrain = BasicDifferentialDrivetrain(
+        leftMotors = MotorControllerGroup(left1, left2),
+        rightMotors = MotorControllerGroup(right1,right2),
+        invertMotors = false
+    )
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
@@ -36,13 +55,9 @@ class RobotContainer {
      * predicate, or via the named factories in [ ]'s subclasses for [ ]/[ PS4][edu.wpi.first.wpilibj2.command.button.CommandPS4Controller] controllers or [Flight][edu.wpi.first.wpilibj2.command.button.CommandJoystick].
      */
     private fun configureBindings() {
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-        Trigger { m_exampleSubsystem.exampleCondition() }
-            .onTrue(ExampleCommand(m_exampleSubsystem))
-
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-        // cancelling on release.
-        m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand())
+        drivetrain.setDefaultRunCommand {
+            drivetrain.curvatureDrive(m_driverController.leftY, m_driverController.rightX)
+        }
     }
 
     val autonomousCommand: Command
@@ -51,6 +66,11 @@ class RobotContainer {
          *
          * @return the command to run in autonomous
          */
-        get() =// An example command will be run in autonomous
-            Autos.exampleAuto(m_exampleSubsystem)
+        get() = buildCommand{
+            loopFor(5.seconds,drivetrain){
+                drivetrain.curvatureDrive(0.3,0.3)
+            }
+
+        }
+
 }
