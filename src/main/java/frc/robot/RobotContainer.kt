@@ -10,9 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.chargers.commands.DoNothing
 import frc.chargers.commands.RunCommand
-import frc.chargers.hardware.motorcontrol.ctre.falcon
 import frc.chargers.hardware.motorcontrol.rev.ChargerSpark
-import frc.chargers.hardware.motorcontrol.rev.neoSparkMax
 import frc.chargers.hardware.subsystems.drivetrain.BasicDifferentialDrivetrain
 import frc.robot.inputdevices.DriverController
 
@@ -24,7 +22,7 @@ import frc.robot.inputdevices.DriverController
  */
 class RobotContainer {
 
-    private val m_driverController = DriverController(1,0.3,0.4,-0.3)
+    private val m_driverController = DriverController(1,0.3,0.4,-0.45)
 
     val left1  = ChargerSpark(channel = 7) // @Someone change this here
     val left2  = ChargerSpark(channel = 8) // and this
